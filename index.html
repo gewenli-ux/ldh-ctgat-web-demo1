@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDH神经炎症ct-GAT无创分型Web预测系统 · 模拟演示版</title>
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f5f7fb;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            padding: 30px 20px;
+            color: #1e293b;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            max-width: 1000px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            padding: 40px 40px 50px;
+            transition: all 0.2s;
+        }
+        /* ===== 头部 ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #eef2f6;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-left h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: 0.3px;
+            line-height: 1.4;
+        }
+        .header-left .subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 6px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.2px;
+        }
+        .badge-warning {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .mode-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 4px 6px 4px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            color: #334155;
+        }
+        .mode-selector select {
+            border: none;
+            background: white;
+            padding: 6px 14px 6px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #0f172a;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        .mode-indicator {
+            font-size: 12px;
+            background: #e6f0fa;
+            padding: 4px 14px;
+            border-radius: 30px;
+            color: #075985;
+            font-weight: 500;
+        }
+        /* ===== 模拟提示 ===== */
+        .sim-notice {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            font-size: 14px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .sim-notice strong {
+            color: #0f172a;
+        }
+        .sim-notice .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        /* ===== 表单分区 ===== */
+        .form-section {
+            background: #fafcff;
+            border-radius: 18px;
+            padding: 24px 24px 18px;
+            margin-bottom: 24px;
+            border: 1px solid #e9edf4;
+            transition: border-color 0.2s;
+        }
+        .form-section:hover {
+            border-color: #cbd9ec;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            letter-spacing: 0.2px;
+        }
+        .section-title .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e293b;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .section-title .tag {
+            font-size: 12px;
+            background: #e9edf4;
+            padding: 0 12px;
+            border-radius: 30px;
+            color: #475569;
+            font-weight: 400;
+            margin-left: auto;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px 24px;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .field.full {
+            grid-column: 1 / -1;
+        }
+        .field label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .field label .required {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .field .hint {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+        .field input,
+        .field select {
+            padding: 10px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+            transition: border 0.15s, box-shadow 0.15s;
+            color: #0f172a;
+            width: 100%;
+            font-family: inherit;
+        }
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        .field input.error,
+        .field select.error {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+        }
+        .field .error-msg {
+            font-size: 12px;
+            color: #dc2626;
+            min-height: 18px;
+            margin-top: 2px;
+        }
+        .field .field-note {
+            font-size: 12px;
+            color: #6b7a94;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+        /* ===== 分子模式提示 ===== */
+        .molecular-mode-hint {
+            background: #f0f7ff;
+            border-left: 4px solid #2563eb;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #1e3a6f;
+            margin: 6px 0 10px 0;
+            grid-column: 1 / -1;
+        }
+        .molecular-mode-hint.warning {
+            background: #fffbeb;
+            border-left-color: #d97706;
+            color: #78350f;
+        }
+        .molecular-mode-hint.hidden {
+            display: none;
+        }
+        /* ===== 操作栏 ===== */
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 10px;
+            padding-top: 22px;
+            border-top: 1px solid #eef2f6;
+        }
+        .action-left {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 11px 32px;
+            border: none;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            background: #eef2f6;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+        .btn-primary {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #d0d9e8;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+        .action-right {
+            font-size: 13px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        /* ===== 结果面板 ===== */
+        #resultPanel {
+            margin-top: 30px;
+            border-radius: 20px;
+            background: #fafcff;
+            border: 1px solid #e9edf4;
+            padding: 28px 28px 24px;
+            display: none;
+            animation: fadeUp 0.4s ease;
+        }
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #eef2f6;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .result-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 20px;
+            padding: 6px 22px 6px 18px;
+            border-radius: 40px;
+        }
+        .result-label.high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .result-label.low {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 720px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px 20px 20px;
+            border: 1px solid #eef2f6;
+        }
+        .result-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 14px;
+            letter-spacing: 0.3px;
+        }
+        .shap-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .shap-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+        .shap-item .name {
+            width: 110px;
+            flex-shrink: 0;
+            color: #1e293b;
+            font-weight: 500;
+            text-align: right;
+        }
+        .shap-item .bar-track {
+            flex: 1;
+            height: 20px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .shap-item .bar-fill {
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.6s ease;
+        }
+        .shap-item .bar-fill.positive {
+            background: #dc2626;
+        }
+        .shap-item .bar-fill.negative {
+            background: #2563eb;
+        }
+        .shap-item .value {
+            width: 44px;
+            flex-shrink: 0;
+            font-size: 12px;
+            font-weight: 500;
+            color: #334155;
+            text-align: right;
+        }
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        .heatmap-cell {
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 11px;
+            border-radius: 8px;
+            color: #0f172a;
+            font-weight: 500;
+            background: #f1f5f9;
+            transition: background 0.3s;
+        }
+        .heatmap-cell .label {
+            display: block;
+            font-weight: 400;
+            color: #475569;
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+        .result-summary {
+            grid-column: 1 / -1;
+            background: #f1f5f9;
+            border-radius: 14px;
+            padding: 16px 22px;
+            font-size: 14px;
+            color: #1e293b;
+            line-height: 1.7;
+            border-left: 4px solid #0f172a;
+        }
+        .result-summary strong {
+            color: #0f172a;
+        }
+        .result-footer {
+            margin-top: 18px;
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid #eef2f6;
+            padding-top: 18px;
+        }
+        /* ===== 响应式 ===== */
+        @media (max-width: 600px) {
+            .app-container {
+                padding: 20px 16px;
+            }
+            .row {
+                grid-template-columns: 1fr;
+            }
+            .header-left h1 {
+                font-size: 18px;
+            }
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .action-left {
+                flex-direction: column;
+            }
+            .btn {
+                justify-content: center;
+            }
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            .shap-item .name {
+                width: 70px;
+                font-size: 12px;
+            }
+        }
+        /* 打印优化 */
+        @media print {
+            .mode-selector,
+            .sim-notice,
+            .action-bar {
+                display: none !important;
+            }
+            .app-container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            #resultPanel {
+                display: block !important;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        <!-- ===== 头部 ===== -->
+        <div class="header">
+            <div class="header-left">
+                <h1>🧬 LDH 神经炎症 ct‑GAT 无创分型系统</h1>
+                <div class="subtitle">
+                    <span>经体内外实验验证 · ceRNA驱动拓扑定制 · 双层可解释</span>
+                    <span class="badge">模拟演示版 v1.0</span>
+                    <span class="badge badge-warning">申报书配套展示</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="mode-selector">
+                    <span>🧪 分子模式</span>
+                    <select id="modeSelect" onchange="switchMode()">
+                        <option value="full">情形一：ceRNA驱动拓扑 (r &gt; 0.6)</option>
+                        <option value="feature">情形二：分子仅作特征 (0.4 ≤ r ≤ 0.6)</option>
+                        <option value="mri">情形三：MRI模式 (r &lt; 0.4) 备选预案</option>
+                    </select>
+                </div>
+                <span class="mode-indicator" id="modeIndicator">🔬 分子驱动拓扑</span>
+            </div>
+        </div>
+
+        <!-- ===== 模拟提示 ===== -->
+        <div class="sim-notice">
+            <span><span class="dot"></span> <strong>模拟演示界面</strong> — 本页面为申报书配套的Web系统概念原型，展示录入字段、交互逻辑与预测结果形态。所有数据为模拟生成，不涉及真实患者信息。</span>
+            <span style="margin-left:auto;font-size:12px;color:#94a3b8;">点击“模拟预测”查看结果展示</span>
+        </div>
+
+        <!-- ===== 表单 ===== -->
+        <form id="predictForm" onsubmit="return handlePredict(event)">
+
+            <!-- 第一组 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="num">1</span> 人口学与基线信息
+                    <span class="tag">7项</span>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>年龄 <span class="required">*</span> <span class="hint">18-65岁</span></label>
+                        <input type="number" id="age" value="52" min="18" max="65" required>
+                        <div class="error-msg" id="ageError"></div>
+                    </div>
+                    <div class="field">
+                        <label>性别 <span class="required">*</span></label>
+                        <select id="gender"><option value="男">男</option><option value="女">女</option></select>
+                    </div>
+                    <div class="field">
+                        <label>身高 <span class="hint">cm</span></label>
+                        <input type="number" id="height" value="168" step="0.1">
+                    </div>
+                    <div class="field">
+                        <label>体重 <span class="hint">kg</span></label>
+                        <input type="number" id="weight" value="72" step="0.1">
+                    </div>
+                    <div class="field">
+                        <label>BMI <span class="hint">自动计算</span></label>
+                        <input type="text" id="bmi" value="25.5" readonly style="background:#f1f5f9;">
+                    </div>
+                    <div class="field">
+                        <label>病程 <span class="hint">月</span></label>
+                        <input type="number" id="duration" value="8" min="0" step="0.5">
+                    </div>
+                    <div class="field">
+                        <label>吸烟史</label>
+                        <select id="smoking"><option value="否">否</option><option value="是">是</option></select>
+                    </div>
+                    <div class="field">
+                        <label>糖尿病史</label>
+                        <select id="diabetes"><option value="否">否</option><option value="是">是</option></select>
+                    </div>
+                    <div class="field">
+                        <label>采血时辰 <span class="hint">协变量</span></label>
+                        <input type="time" id="bloodTime" value="09:30">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二组 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="num">2</span> 功能量表
+                    <span class="tag">3项</span>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>VAS 静息痛 <span class="hint">0-10</span></label>
+                        <input type="number" id="vasRest" value="5" min="0" max="10">
+                        <div class="error-msg" id="vasRestError"></div>
+                    </div>
+                    <div class="field">
+                        <label>VAS 活动痛 <span class="hint">0-10</span></label>
+                        <input type="number" id="vasActive" value="7" min="0" max="10">
+                        <div class="error-msg" id="vasActiveError"></div>
+                    </div>
+                    <div class="field">
+                        <label>ODI 总分 <span class="hint">0-100%</span></label>
+                        <input type="number" id="odiTotal" value="44" min="0" max="100">
+                        <div class="error-msg" id="odiError"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第三组 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="num">3</span> MRI 影像半定量指标
+                    <span class="tag">4项</span>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>椎间盘突出分型</label>
+                        <select id="herniationType">
+                            <option>膨出型</option>
+                            <option selected>突出型</option>
+                            <option>脱出型</option>
+                            <option>游离型</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>神经根水肿分级 <span class="required">*</span> <span class="hint">金标准标签</span></label>
+                        <select id="edemaGrade">
+                            <option value="0">0级</option>
+                            <option value="1">1级</option>
+                            <option value="2" selected>2级</option>
+                            <option value="3">3级</option>
+                        </select>
+                        <div class="error-msg" id="edemaError"></div>
+                    </div>
+                    <div class="field">
+                        <label>Pfirrmann 分级</label>
+                        <select id="pfirrmann">
+                            <option>Ⅰ级</option>
+                            <option>Ⅱ级</option>
+                            <option selected>Ⅲ级</option>
+                            <option>Ⅳ级</option>
+                            <option>Ⅴ级</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>椎管有效横截面积 <span class="hint">mm²</span></label>
+                        <input type="number" id="canalArea" value="145" step="1">
+                    </div>
+                    <div class="field full">
+                        <div class="molecular-mode-hint" id="mriModeHint" style="display:none;background:#fef3c7;border-left-color:#d97706;color:#78350f;">
+                            ⚠️ 当前为 <strong>MRI影像特征模式</strong>（备选预案）。神经根水肿分级同时作为金标准标签与邻接矩阵构建特征。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四组 -->
+            <div class="form-section" id="molecularSection">
+                <div class="section-title">
+                    <span class="num">4</span> 分子检测指标
+                    <span class="tag">3项 · qPCR △Ct</span>
+                </div>
+                <div class="row">
+                    <div class="field" id="molecularFields">
+                        <label>SNHG16 △Ct</label>
+                        <input type="number" id="snhg16" value="12.34" step="0.01">
+                        <div class="error-msg" id="snhg16Error"></div>
+                    </div>
+                    <div class="field" id="molecularFields2">
+                        <label>miR-146a △Ct</label>
+                        <input type="number" id="mir146a" value="8.76" step="0.01">
+                        <div class="error-msg" id="mir146aError"></div>
+                    </div>
+                    <div class="field" id="molecularFields3">
+                        <label>TRAF6 △Ct</label>
+                        <input type="number" id="traf6" value="10.21" step="0.01">
+                        <div class="error-msg" id="traf6Error"></div>
+                    </div>
+                    <div class="field full">
+                        <div class="molecular-mode-hint" id="molecularHint">
+                            🧬 当前模式：ceRNA分子驱动拓扑构建 — 三项△Ct值同时作为输入特征与邻接矩阵余弦相似度计算依据。
+                        </div>
+                        <div class="molecular-mode-hint warning" id="molecularHintFeature" style="display:none;">
+                            📊 当前模式：分子特征作为参考指标，不驱动图拓扑构建。三项△Ct值仅作为普通输入特征参与分类计算。
+                        </div>
+                        <div class="molecular-mode-hint" id="molecularHintHidden" style="display:none;background:#f1f5f9;border-left-color:#94a3b8;color:#475569;">
+                            ⚙️ 当前模式：分子特征不参与建模。界面已隐藏△Ct字段，请参考MRI影像特征模式。
+                        </div>
+                    </div>
+                    <div class="field full" style="font-size:13px;color:#64748b;background:#f8fafc;padding:8px 16px;border-radius:10px;margin-top:2px;">
+                        △Ct = 目的基因Ct值 − 内参基因(U6)Ct值，记录精度至小数点后两位。
+                        检测质控：采血后30min内离心 · A260/A280 1.8-2.0 · RIN≥7.0 · 批内CV＜3%
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 操作栏 ===== -->
+            <div class="action-bar">
+                <div class="action-left">
+                    <button type="submit" class="btn btn-primary" id="predictBtn">🧠 模拟预测</button>
+                    <button type="reset" class="btn btn-outline" onclick="resetForm()">↺ 重置</button>
+                </div>
+                <div class="action-right">
+                    <span id="fieldCount">已录入 17/17 项</span>
+                </div>
+            </div>
+        </form>
+
+        <!-- ===== 结果面板 ===== -->
+        <div id="resultPanel">
+            <div class="result-header">
+                <span class="result-title">📋 分型结果</span>
+                <span class="result-label high" id="resultLabel">🔴 高神经炎症</span>
+            </div>
+            <div class="result-grid">
+                <!-- 左：概率 + 置信区间 -->
+                <div class="result-card">
+                    <h4>📊 风险概率</h4>
+                    <div style="font-size:32px;font-weight:700;color:#0f172a;" id="probValue">78%</div>
+                    <div style="font-size:14px;color:#64748b;margin-top:4px;">95% CI <span id="ciLower">72%</span> – <span id="ciUpper">84%</span></div>
+                    <div style="margin-top:12px;background:#f1f5f9;border-radius:30px;height:10px;overflow:hidden;">
+                        <div id="probBar" style="height:100%;width:78%;background:#0f172a;border-radius:30px;transition:width 0.6s;"></div>
+                    </div>
+                </div>
+                <!-- 右：SHAP 贡献 -->
+                <div class="result-card">
+                    <h4>📈 SHAP 特征贡献 <span style="font-weight:400;color:#94a3b8;font-size:12px;">（前5位）</span></h4>
+                    <div class="shap-bar" id="shapContainer">
+                        <!-- JS 动态渲染 -->
+                    </div>
+                </div>
+                <!-- 热力图（简表） -->
+                <div class="result-card">
+                    <h4>🔥 Grad‑CAM 注意力权重</h4>
+                    <div class="heatmap-grid" id="heatmapContainer">
+                        <!-- JS 动态渲染 -->
+                    </div>
+                </div>
+                <!-- 自然语言摘要 -->
+                <div class="result-card" style="grid-column:1/-1;">
+                    <h4>📝 判读摘要</h4>
+                    <div style="font-size:14px;line-height:1.8;color:#1e293b;" id="summaryText">
+                        该患者高炎症风险概率为 <strong>78%</strong>（95%CI 72%-84%），
+                        前三位驱动因素为：<strong>神经根水肿分级（3级）</strong>、
+                        <strong>SNHG16 △Ct值（偏高）</strong>、
+                        <strong>VAS活动评分（8分）</strong>。
+                        建议结合临床综合判断。
+                    </div>
+                </div>
+            </div>
+            <div class="result-footer">
+                ⚕️ 本工具为临床辅助参考，不替代医师诊断 · 模拟演示版，数据均为示例
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================================
+        //  分子模式切换
+        // ============================================================
+        function switchMode() {
+            const mode = document.getElementById('modeSelect').value;
+            const indicator = document.getElementById('modeIndicator');
+            const molSection = document.getElementById('molecularSection');
+            const molHint = document.getElementById('molecularHint');
+            const molHintFeature = document.getElementById('molecularHintFeature');
+            const molHintHidden = document.getElementById('molecularHintHidden');
+            const mriHint = document.getElementById('mriModeHint');
+            const edemaLabel = document.querySelector('#edemaGrade').parentElement.querySelector('label');
+            const edemaNote = document.querySelector('#edemaGrade').parentElement.querySelector('.hint');
+
+            // 分子字段
+            const fields = ['snhg16', 'mir146a', 'traf6'];
+            const fieldWrappers = [
+                document.getElementById('molecularFields'),
+                document.getElementById('molecularFields2'),
+                document.getElementById('molecularFields3')
+            ];
+
+            if (mode === 'full') {
+                indicator.textContent = '🔬 分子驱动拓扑';
+                molHint.style.display = 'block';
+                molHintFeature.style.display = 'none';
+                molHintHidden.style.display = 'none';
+                mriHint.style.display = 'none';
+                if (edemaLabel) {
+                    const labelText = '神经根水肿分级 <span class="required">*</span> <span class="hint">金标准标签</span>';
+                    edemaLabel.innerHTML = labelText;
+                }
+                // 显示字段并设为必填
+                fieldWrappers.forEach((w, i) => {
+                    w.style.display = 'block';
+                    const inp = document.getElementById(fields[i]);
+                    inp.required = true;
+                    inp.disabled = false;
+                    // 清除错误状态
+                    inp.classList.remove('error');
+                    const err = document.getElementById(fields[i] + 'Error');
+                    if (err) err.textContent = '';
+                });
+                document.querySelector('#molecularSection .section-title .tag').textContent = '3项 · qPCR △Ct';
+
+            } else if (mode === 'feature') {
+                indicator.textContent = '📊 分子作特征';
+                molHint.style.display = 'none';
+                molHintFeature.style.display = 'block';
+                molHintHidden.style.display = 'none';
+                mriHint.style.display = 'none';
+                if (edemaLabel) {
+                    const labelText = '神经根水肿分级 <span class="required">*</span> <span class="hint">金标准标签</span>';
+                    edemaLabel.innerHTML = labelText;
+                }
+                fieldWrappers.forEach((w, i) => {
+                    w.style.display = 'block';
+                    const inp = document.getElementById(fields[i]);
+                    inp.required = true;
+                    inp.disabled = false;
+                    inp.classList.remove('error');
+                    const err = document.getElementById(fields[i] + 'Error');
+                    if (err) err.textContent = '';
+                });
+                document.querySelector('#molecularSection .section-title .tag').textContent = '3项 · 仅作特征';
+
+            } else { // mri
+                indicator.textContent = '📷 MRI 影像模式';
+                molHint.style.display = 'none';
+                molHintFeature.style.display = 'none';
+                molHintHidden.style.display = 'block';
+                mriHint.style.display = 'block';
+                if (edemaLabel) {
+                    const labelText = '神经根水肿分级 <span class="required">*</span> <span class="hint">金标准标签 + 邻接矩阵构建特征</span>';
+                    edemaLabel.innerHTML = labelText;
+                }
+                fieldWrappers.forEach((w, i) => {
+                    w.style.display = 'none';
+                    const inp = document.getElementById(fields[i]);
+                    inp.required = false;
+                    inp.disabled = true;
+                    inp.classList.remove('error');
+                    const err = document.getElementById(fields[i] + 'Error');
+                    if (err) err.textContent = '';
+                });
+                document.querySelector('#molecularSection .section-title .tag').textContent = '已隐藏 · MRI模式';
+            }
+            updateFieldCount();
+        }
+
+        // ============================================================
+        //  实时校验
+        // ============================================================
+        function validateField(id, condition, errorId, msg) {
+            const el = document.getElementById(id);
+            const err = document.getElementById(errorId);
+            if (!el || !err) return true;
+            if (!condition) {
+                el.classList.add('error');
+                err.textContent = msg;
+                return false;
+            } else {
+                el.classList.remove('error');
+                err.textContent = '';
+                return true;
+            }
+        }
+
+        function validateAll() {
+            let ok = true;
+            // 年龄
+            const age = parseInt(document.getElementById('age').value);
+            if (!validateField('age', age >= 18 && age <= 65 && !isNaN(age), 'ageError', '请输入18-65之间的年龄')) ok = false;
+            // VAS
+            const vr = parseFloat(document.getElementById('vasRest').value);
+            const va = parseFloat(document.getElementById('vasActive').value);
+            if (!validateField('vasRest', vr >= 0 && vr <= 10 && !isNaN(vr), 'vasRestError', '请输入0-10之间的数值')) ok = false;
+            if (!validateField('vasActive', va >= 0 && va <= 10 && !isNaN(va), 'vasActiveError', '请输入0-10之间的数值')) ok =
+                false;
+            // ODI
+            const odi = parseFloat(document.getElementById('odiTotal').value);
+            if (!validateField('odiTotal', odi >= 0 && odi <= 100 && !isNaN(odi), 'odiError', '请输入0-100之间的数值')) ok = false;
+            // 神经根水肿
+            const edema = document.getElementById('edemaGrade').value;
+            if (!validateField('edemaGrade', edema !== '', 'edemaError', '请选择神经根水肿分级')) ok = false;
+            // 分子字段（根据模式）
+            const mode = document.getElementById('modeSelect').value;
+            if (mode === 'full' || mode === 'feature') {
+                const snhg16 = parseFloat(document.getElementById('snhg16').value);
+                const mir = parseFloat(document.getElementById('mir146a').value);
+                const traf = parseFloat(document.getElementById('traf6').value);
+                if (!validateField('snhg16', !isNaN(snhg16), 'snhg16Error', '请输入有效的△Ct值')) ok = false;
+                if (!validateField('mir146a', !isNaN(mir), 'mir146aError', '请输入有效的△Ct值')) ok = false;
+                if (!validateField('traf6', !isNaN(traf), 'traf6Error', '请输入有效的△Ct值')) ok = false;
+            } else {
+                // MRI模式：清除分子错误
+                ['snhg16', 'mir146a', 'traf6'].forEach(id => {
+                    const el = document.getElementById(id);
+                    const err = document.getElementById(id + 'Error');
+                    if (el) el.classList.remove('error');
+                    if (err) err.textContent = '';
+                });
+            }
+            return ok;
+        }
+
+        // 实时绑定校验
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('input', () => { validateAll();
+                updateFieldCount(); });
+            el.addEventListener('change', () => { validateAll();
+                updateFieldCount(); });
+        });
+
+        // ============================================================
+        //  字段计数
+        // ============================================================
+        function updateFieldCount() {
+            const mode = document.getElementById('modeSelect').value;
+            const total = 17;
+            let filled = 0;
+            document.querySelectorAll('input:not([readonly]), select').forEach(el => {
+                if (el.type === 'number' || el.type === 'text' || el.type === 'time') {
+                    if (el.value.trim() !== '' && !el.disabled) filled++;
+                } else if (el.tagName === 'SELECT') {
+                    if (el.value !== '' && !el.disabled) filled++;
+                }
+            });
+            // 分子字段根据模式调整
+            if (mode === 'mri') {
+                // 分子隐藏，不计入
+            }
+            document.getElementById('fieldCount').textContent = `已录入 ${filled}/${total} 项`;
+        }
+
+        // ============================================================
+        //  BMI 自动计算
+        // ============================================================
+        document.getElementById('height').addEventListener('input', calcBMI);
+        document.getElementById('weight').addEventListener('input', calcBMI);
+
+        function calcBMI() {
+            const h = parseFloat(document.getElementById('height').value) / 100;
+            const w = parseFloat(document.getElementById('weight').value);
+            if (h > 0 && w > 0) {
+                const bmi = w / (h * h);
+                document.getElementById('bmi').value = bmi.toFixed(1);
+            }
+        }
+
+        // ============================================================
+        //  模拟预测
+        // ============================================================
+        function handlePredict(e) {
+            e.preventDefault();
+            if (!validateAll()) {
+                alert('请修正表单中的错误（红色高亮字段）后再提交。');
+                return false;
+            }
+
+            // 模拟生成结果
+            const prob = 0.65 + Math.random() * 0.30;
+            const probPct = Math.round(prob * 100);
+            const ciLow = Math.round((prob - 0.06) * 100);
+            const ciHigh = Math.round((prob + 0.06) * 100);
+
+            // 根据水肿分级调整
+            const edema = parseInt(document.getElementById('edemaGrade').value);
+            let label = prob > 0.70 ? 'high' : 'low';
+            if (edema >= 2 && prob > 0.60) label = 'high';
+            if (edema < 2 && prob < 0.60) label = 'low';
+
+            const labelText = label === 'high' ? '🔴 高神经炎症' : '🟢 低神经炎症';
+            const labelClass = label === 'high' ? 'high' : 'low';
+
+            // 显示结果
+            const panel = document.getElementById('resultPanel');
+            panel.style.display = 'block';
+
+            document.getElementById('resultLabel').textContent = labelText;
+            document.getElementById('resultLabel').className = 'result-label ' + labelClass;
+            document.getElementById('probValue').textContent = probPct + '%';
+            document.getElementById('ciLower').textContent = ciLow + '%';
+            document.getElementById('ciUpper').textContent = ciHigh + '%';
+            document.getElementById('probBar').style.width = probPct + '%';
+
+            // SHAP 模拟
+            const features = [
+                { name: '神经根水肿分级', value: 0.32, pos: true },
+                { name: 'SNHG16 △Ct', value: 0.28, pos: true },
+                { name: 'VAS活动评分', value: 0.18, pos: true },
+                { name: 'Pfirrmann分级', value: -0.12, pos: false },
+                { name: 'TRAF6 △Ct', value: 0.10, pos: true },
+            ];
+            // 根据模式调整
+            const mode = document.getElementById('modeSelect').value;
+            if (mode === 'mri') {
+                features[1] = { name: '椎管横截面积', value: -0.15, pos: false };
+                features[4] = { name: '椎间盘突出分型', value: 0.08, pos: true };
+            }
+            if (mode === 'feature') {
+                features[1].value = 0.12;
+                features[4].value = 0.06;
+            }
+
+            const maxAbs = Math.max(...features.map(f => Math.abs(f.value))) || 1;
+            const shapHtml = features.map(f => {
+                const pct = (Math.abs(f.value) / maxAbs * 100).toFixed(0);
+                const cls = f.pos ? 'positive' : 'negative';
+                const sign = f.pos ? '+' : '';
+                return `<div class="shap-item">
+                    <span class="name">${f.name}</span>
+                    <div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct}%;"></div></div>
+                    <span class="value">${sign}${(f.value * 100).toFixed(0)}%</span>
+                </div>`;
+            }).join('');
+            document.getElementById('shapContainer').innerHTML = shapHtml;
+
+            // 热力图（简化）
+            const heatFeatures = ['年龄', 'VAS活动', '水肿分级', 'SNHG16', 'TRAF6', 'Pfirrmann', 'ODI', '病程'];
+            const heatData = heatFeatures.map(() => Math.random() * 0.8 + 0.2);
+            // 根据模式调整
+            if (mode === 'mri') {
+                heatData[3] = 0.1; // SNHG16 降低
+                heatData[4] = 0.1; // TRAF6 降低
+            }
+            const maxHeat = Math.max(...heatData);
+            const heatHtml = heatFeatures.map((name, i) => {
+                const val = heatData[i];
+                const intensity = Math.round((val / maxHeat) * 100);
+                const bg = `hsl(220, ${Math.min(80, 30 + intensity * 0.5)}%, ${Math.max(70, 92 - intensity * 0.3)}%)`;
+                return `<div class="heatmap-cell" style="background:${bg};">
+                    <span class="label">${name}</span>
+                    ${Math.round(val * 100)}%
+                </div>`;
+            }).join('');
+            document.getElementById('heatmapContainer').innerHTML = heatHtml;
+
+            // 自然语言摘要
+            const top1 = features[0].name;
+            const top2 = features[1].name;
+            const top3 = features[2].name;
+            const summary = `该患者高炎症风险概率为 <strong>${probPct}%</strong>（95%CI ${ciLow}%-${ciHigh}%），
+                前三位驱动因素为：<strong>${top1}</strong>、
+                <strong>${top2}</strong>、
+                <strong>${top3}</strong>。
+                建议结合临床综合判断。`;
+            document.getElementById('summaryText').innerHTML = summary;
+
+            // 滚动到结果
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return false;
+        }
+
+        // ============================================================
+        //  重置
+        // ============================================================
+        function resetForm() {
+            document.querySelectorAll('input:not([readonly]), select').forEach(el => {
+                if (el.type === 'number' || el.type === 'text' || el.type === 'time') {
+                    if (el.id === 'age') el.value = '52';
+                    else if (el.id === 'height') el.value = '168';
+                    else if (el.id === 'weight') el.value = '72';
+                    else if (el.id === 'duration') el.value = '8';
+                    else if (el.id === 'vasRest') el.value = '5';
+                    else if (el.id === 'vasActive') el.value = '7';
+                    else if (el.id === 'odiTotal') el.value = '44';
+                    else if (el.id === 'canalArea') el.value = '145';
+                    else if (el.id === 'snhg16') el.value = '12.34';
+                    else if (el.id === 'mir146a') el.value = '8.76';
+                    else if (el.id === 'traf6') el.value = '10.21';
+                    else if (el.id === 'bloodTime') el.value = '09:30';
+                    else if (el.id === 'bmi') el.value = '25.5';
+                    else if (el.id === 'bmi') {}
+                    else el.value = '';
+                } else if (el.tagName === 'SELECT') {
+                    // 重置为第一个或默认
+                    if (el.id === 'gender') el.value = '男';
+                    else if (el.id === 'smoking') el.value = '否';
+                    else if (el.id === 'diabetes') el.value = '否';
+                    else if (el.id === 'herniationType') el.value = '突出型';
+                    else if (el.id === 'edemaGrade') el.value = '2';
+                    else if (el.id === 'pfirrmann') el.value = 'Ⅲ级';
+                }
+            });
+            document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
+            document.querySelectorAll('input, select').forEach(el => el.classList.remove('error'));
+            document.getElementById('resultPanel').style.display = 'none';
+            calcBMI();
+            updateFieldCount();
+            // 重置模式
+            document.getElementById('modeSelect').value = 'full';
+            switchMode();
+        }
+
+        // ============================================================
+        //  初始化
+        // ============================================================
+        window.onload = function() {
+            calcBMI();
+            updateFieldCount();
+            switchMode();
+            // 自动触发一次预测展示
+            setTimeout(() => {
+                handlePredict(new Event('submit'));
+            }, 400);
+        };
+    </script>
+
+</body>
+</html>
